@@ -45,6 +45,9 @@ dependencies:
   posthog_flutter: ^4.1.0
   supabase_auth_ui: ^0.4.1
   shadcn_ui: ^0.6.3
+  flutter_ffmpeg: ^0.4.0
+  file_picker: ^5.0.0 # For file selection
+  path_provider: ^2.0.0 # For accessing device paths
 
 dev_dependencies:
   flutter_test:

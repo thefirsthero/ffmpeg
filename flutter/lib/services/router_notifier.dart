@@ -1,3 +1,4 @@
+import 'package:devtodollars/screens/ffmpeg_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
@@ -28,7 +29,14 @@ GoRouter router(RouterRef ref) {
         name: 'home',
         path: '/',
         builder: (context, state) {
-          return const HomeScreen(title: "DevToDollars");
+          return const HomeScreen(title: "FFMPEG");
+        },
+      ),
+      GoRoute(
+        name: 'ffmpeg',
+        path: '/ffmpeg',
+        builder: (context, state) {
+          return const FFmpegScreen(title: "FFMPEG");
         },
       ),
     ],
