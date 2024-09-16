@@ -6,12 +6,16 @@ class FFmpegState {
   final String inputFilePath;
   final String outputFolderPath;
   final String ffmpegCommand;
+  final String? outputMessage; // Added to store output message
+  final String? errorMessage; // Added to store error message
 
   FFmpegState({
     required this.isRunning,
     required this.inputFilePath,
     required this.outputFolderPath,
     required this.ffmpegCommand,
+    this.outputMessage,
+    this.errorMessage,
   });
 
   FFmpegState copyWith({
@@ -19,12 +23,16 @@ class FFmpegState {
     String? inputFilePath,
     String? outputFolderPath,
     String? ffmpegCommand,
+    String? outputMessage,
+    String? errorMessage,
   }) {
     return FFmpegState(
       isRunning: isRunning ?? this.isRunning,
       inputFilePath: inputFilePath ?? this.inputFilePath,
       outputFolderPath: outputFolderPath ?? this.outputFolderPath,
       ffmpegCommand: ffmpegCommand ?? this.ffmpegCommand,
+      outputMessage: outputMessage ?? this.outputMessage,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 }
@@ -35,7 +43,9 @@ class FFmpegNotifier extends StateNotifier<FFmpegState> {
             isRunning: false,
             inputFilePath: '',
             outputFolderPath: '',
-            ffmpegCommand: ''));
+            ffmpegCommand: '',
+            outputMessage: null,
+            errorMessage: null));
 
   final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
 
@@ -51,10 +61,19 @@ class FFmpegNotifier extends StateNotifier<FFmpegState> {
     state = state.copyWith(ffmpegCommand: command);
   }
 
+  void setOutputMessage(String message) {
+    state = state.copyWith(outputMessage: message, errorMessage: null);
+  }
+
+  void setErrorMessage(String message) {
+    state = state.copyWith(errorMessage: message, outputMessage: null);
+  }
+
   Future<void> startFFmpeg() async {
     if (state.inputFilePath.isEmpty ||
         state.outputFolderPath.isEmpty ||
         state.ffmpegCommand.isEmpty) {
+      setErrorMessage('All fields are required');
       throw ('All fields are required');
     }
 
@@ -67,9 +86,10 @@ class FFmpegNotifier extends StateNotifier<FFmpegState> {
     state = state.copyWith(isRunning: false);
 
     if (rc == 0) {
-      return Future.value('FFmpeg completed successfully');
+      setOutputMessage('FFmpeg completed successfully');
     } else {
-      return Future.error('FFmpeg failed');
+      setErrorMessage('FFmpeg failed with return code: $rc');
+      throw ('FFmpeg failed');
     }
   }
 }
