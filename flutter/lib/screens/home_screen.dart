@@ -1,8 +1,11 @@
+import 'package:devtodollars/components/feedback_dialog.dart';
+import 'package:devtodollars/components/ffmpeg_action_button.dart';
+import 'package:devtodollars/components/file_selector_button.dart';
+import 'package:devtodollars/components/folder_selector_button.dart';
 import 'package:devtodollars/services/ffmpeg_notifier.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.title});
@@ -16,9 +19,30 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    // Access WidgetRef using the 'ref' property
     final ffmpegState = ref.watch(ffmpegProvider);
     final ffmpegNotifier = ref.read(ffmpegProvider.notifier);
+
+    void showSuccessDialog() {
+      showDialog(
+        context: context,
+        builder: (context) => FeedbackDialog(
+          title: 'Success',
+          message: 'FFmpeg process completed successfully!',
+          onClose: () => Navigator.of(context).pop(),
+        ),
+      );
+    }
+
+    void showErrorDialog(String errorMessage) {
+      showDialog(
+        context: context,
+        builder: (context) => FeedbackDialog(
+          title: 'Error',
+          message: errorMessage,
+          onClose: () => Navigator.of(context).pop(),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -26,95 +50,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         title: Text(widget.title),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Select Input File:', style: TextStyle(fontSize: 16)),
-            ShadButton(
-              onPressed: () async {
-                FilePickerResult? result =
-                    await FilePicker.platform.pickFiles();
-                if (result != null) {
-                  ffmpegNotifier.setInputFile(result.files.single.path!);
-                }
-              },
-              text: const Text('Select File'),
+            FileSelectorButton(
+              buttonText: 'Select File',
+              onFileSelected: (filePath) =>
+                  ffmpegNotifier.setInputFile(filePath),
             ),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
             Text('Selected File: ${ffmpegState.inputFilePath}'),
-            const SizedBox(height: 20),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.03),
             const Text('Enter FFmpeg Command:', style: TextStyle(fontSize: 16)),
             TextField(
-              decoration: const InputDecoration(
-                hintText: 'e.g. -c:v copy -c:a copy',
-              ),
-              onChanged: (value) {
-                ffmpegNotifier.setCommand(value);
-              },
+              decoration:
+                  const InputDecoration(hintText: 'e.g. -c:v copy -c:a copy'),
+              onChanged: (value) => ffmpegNotifier.setCommand(value),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.03),
             const Text('Select Output Folder:', style: TextStyle(fontSize: 16)),
-            ShadButton(
-              onPressed: () async {
-                String? selectedDirectory =
-                    await FilePicker.platform.getDirectoryPath();
-                if (selectedDirectory != null) {
-                  ffmpegNotifier.setOutputFolder(selectedDirectory);
-                }
-              },
-              text: const Text('Select Folder'),
+            FolderSelectorButton(
+              buttonText: 'Select Folder',
+              onFolderSelected: (folderPath) =>
+                  ffmpegNotifier.setOutputFolder(folderPath),
             ),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
             Text('Output Folder: ${ffmpegState.outputFolderPath}'),
-            const SizedBox(height: 30),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.05),
             Center(
-              child: ShadButton(
-                onPressed: ffmpegState.isRunning
-                    ? null
-                    : () async {
-                        try {
-                          await ffmpegNotifier.startFFmpeg();
-
-                          showDialog(
-                            context: context,
-                            builder: (context) => ShadDialog(
-                              title: const Text('Success'),
-                              content: const Text(
-                                  'FFmpeg process completed successfully!'),
-                              actions: [
-                                ShadButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  text: const Text('OK'),
-                                ),
-                              ],
-                            ),
-                          );
-                        } catch (e) {
-                          ffmpegNotifier.setErrorMessage(e.toString());
-                          showDialog(
-                            context: context,
-                            builder: (context) => ShadDialog(
-                              title: const Text('Error'),
-                              content: Text(e.toString()),
-                              actions: [
-                                ShadButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  text: const Text('OK'),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                      },
-                text: ffmpegState.isRunning
-                    ? const CircularProgressIndicator()
-                    : const Text('Start'),
+              child: FFmpegActionButton(
+                isRunning: ffmpegState.isRunning,
+                onSuccess: showSuccessDialog,
+                onError: showErrorDialog,
+                startFFmpeg: () => ffmpegNotifier
+                    .startFFmpeg(), // Passing function for starting FFmpeg
+                mounted:
+                    mounted, // Pass the 'mounted' check from the stateful widget
               ),
             ),
-            const SizedBox(height: 30),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.05),
             if (ffmpegState.outputMessage != null ||
                 ffmpegState.errorMessage != null)
               Expanded(
