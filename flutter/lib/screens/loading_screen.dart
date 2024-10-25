@@ -1,4 +1,3 @@
-// screens/loading_screen.dart
 import 'package:flutter/material.dart';
 
 class LoadingScreen extends StatelessWidget {
@@ -18,7 +17,7 @@ class LoadingScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(), // Loading spinner
+            const CircularProgressIndicator(),
             const SizedBox(height: 20),
             Text(
               message,

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 
 import 'file_storage.dart';

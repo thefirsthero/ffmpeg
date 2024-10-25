@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import '../services/file_storage.dart';
-import 'package:path/path.dart'; // Import the path package
+import 'package:path/path.dart';
 
 class VideoPreviewView extends StatefulWidget {
   const VideoPreviewView({super.key});
@@ -60,7 +60,7 @@ class _VideoPreviewViewState extends State<VideoPreviewView> {
               items: _videoFiles.map((file) {
                 return DropdownMenuItem<String>(
                   value: file.path,
-                  child: Text(basename(file.path)), // Use basename here
+                  child: Text(basename(file.path)),
                 );
               }).toList(),
               onChanged: (value) {
@@ -78,7 +78,7 @@ class _VideoPreviewViewState extends State<VideoPreviewView> {
                   )
                 : const Center(child: CircularProgressIndicator()),
           ),
-          if (_videoFiles.isEmpty) // Show this if no videos are found
+          if (_videoFiles.isEmpty)
             const Center(child: Text('No videos found.')),
         ],
       ),
@@ -101,4 +101,3 @@ class _VideoPreviewViewState extends State<VideoPreviewView> {
     );
   }
 }
-

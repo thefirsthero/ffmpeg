@@ -10,7 +10,6 @@ part 'router_notifier.g.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 Uri? initUrl = Uri.base;
 
-// services/router_notifier.dart (updated router)
 @riverpod
 GoRouter router(RouterRef ref) {
   return GoRouter(
@@ -32,8 +31,7 @@ GoRouter router(RouterRef ref) {
         path: '/loading',
         builder: (context, state) {
           final progress = state.extra as double?; // Cast extra as double
-          return LoadingScreen(
-              progress: progress); // Pass progress to LoadingScreen
+          return LoadingScreen(progress: progress);
         },
       ),
       GoRoute(
