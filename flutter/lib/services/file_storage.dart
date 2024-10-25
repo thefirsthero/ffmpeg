@@ -102,13 +102,24 @@ class FileStorage {
     await tts.setVolume(1.0);
 
     // Generate a timestamp for the filename
-    String fileName =
-        Platform.isAndroid ? "tts.wav" : "tts.caf"; 
+    String fileName = Platform.isAndroid ? "tts.wav" : "tts.caf";
     String outputPath = join(await _localPath, fileName);
 
     // Synthesize TTS to file
     await tts.synthesizeToFile(text, outputPath);
     debugPrint('TTS audio saved to: $outputPath');
     return outputPath;
+  }
+
+  static Future<List<FileSystemEntity>> getVideoFiles() async {
+    final directory =
+        Directory(join(await getExternalDocumentPath(), 'Output'));
+    if (await directory.exists()) {
+      return directory
+          .listSync()
+          .where((file) => file.path.endsWith('.mp4'))
+          .toList();
+    }
+    return [];
   }
 }

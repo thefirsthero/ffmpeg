@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../services/video_provider.dart';
+import '../components/input_field.dart';
+import '../components/generate_button.dart';
 
 class HomeView extends ConsumerWidget {
   const HomeView({super.key});
@@ -16,20 +18,20 @@ class HomeView extends ConsumerWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
-              decoration: const InputDecoration(labelText: 'Background Video URL'),
+            InputField(
+              label: 'Background Video URL',
               onChanged: (value) {
                 ref.read(videoProvider.notifier).updateBackgroundVideo(value);
               },
             ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Text for TTS'),
+            InputField(
+              label: 'Text for TTS',
               onChanged: (value) {
                 ref.read(videoProvider.notifier).updateText(value);
               },
             ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Background Audio URL'),
+            InputField(
+              label: 'Background Audio URL',
               onChanged: (value) {
                 ref.read(videoProvider.notifier).updateBackgroundAudio(value);
               },
@@ -40,11 +42,13 @@ class HomeView extends ConsumerWidget {
               max: 1,
               onChanged: videoRequest.backgroundAudioUrl != null
                   ? (value) {
-                      ref.read(videoProvider.notifier).updateTtsVolumeRatio(value);
+                      ref
+                          .read(videoProvider.notifier)
+                          .updateTtsVolumeRatio(value);
                     }
                   : null,
             ),
-            ElevatedButton(
+            GenerateButton(
               onPressed: () async {
                 context.pushNamed('loading');
                 try {
@@ -54,7 +58,6 @@ class HomeView extends ConsumerWidget {
                   context.pushNamed('failure', extra: e.toString());
                 }
               },
-              child: const Text('Generate Video'),
             ),
           ],
         ),

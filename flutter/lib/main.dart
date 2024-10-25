@@ -19,17 +19,19 @@ class MyApp extends ConsumerWidget {
       title: 'Shorts Generator',
       debugShowCheckedModeBanner: false,
       routerConfig: goRouter,
-      theme: ShadThemeData(
-        brightness: Brightness.light,
-        colorScheme: const ShadZincColorScheme.light(),
-        textTheme: ShadTextTheme(family: 'UbuntuMono'),
-      ),
-      darkTheme: ShadThemeData(
-        brightness: Brightness.dark,
-        colorScheme: const ShadZincColorScheme.dark(),
-        textTheme: ShadTextTheme(family: 'UbuntuMono'),
-      ),
+      theme: _buildTheme(Brightness.light),
+      darkTheme: _buildTheme(Brightness.dark),
       builder: (context, child) => Container(child: child),
+    );
+  }
+
+  ShadThemeData _buildTheme(Brightness brightness) {
+    return ShadThemeData(
+      brightness: brightness,
+      colorScheme: brightness == Brightness.light
+          ? const ShadZincColorScheme.light()
+          : const ShadZincColorScheme.dark(),
+      textTheme: ShadTextTheme(family: 'UbuntuMono'),
     );
   }
 }
