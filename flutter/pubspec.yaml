@@ -48,7 +48,7 @@ dependencies:
   flutter_ffmpeg: ^0.4.0
   file_picker: ^5.0.0 # For file selection
   path_provider: ^2.0.0 # For accessing device paths
-  flutter_tts: ^4.0.2
+  flutter_tts: ^3.8.5
   video_player: ^2.9.2
   dio: ^5.7.0
   permission_handler: ^11.3.1

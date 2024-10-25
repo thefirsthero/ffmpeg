@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:intl/intl.dart';
@@ -44,8 +43,7 @@ class FileStorage {
       var videoStreamInfo = manifest.videoOnly.withHighestBitrate();
 
       // Set up file path for saving the video
-      String timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-      String fileName = '$timestamp.mp4';
+      String fileName = 'background_video.mp4';
       String filePath = join(await _localPath, fileName);
       File file = File(filePath);
 
@@ -97,12 +95,18 @@ class FileStorage {
     }
   }
 
-  static Future<String> saveTtsAudio(String text, String outputPath) async {
+  static Future<String> saveTtsAudio(String text) async {
     FlutterTts tts = FlutterTts();
     await tts.setLanguage("en-US");
     await tts.setPitch(1.0);
     await tts.setVolume(1.0);
 
+    // Generate a timestamp for the filename
+    String fileName =
+        Platform.isAndroid ? "tts.wav" : "tts.caf"; 
+    String outputPath = join(await _localPath, fileName);
+
+    // Synthesize TTS to file
     await tts.synthesizeToFile(text, outputPath);
     debugPrint('TTS audio saved to: $outputPath');
     return outputPath;

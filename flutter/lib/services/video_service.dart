@@ -9,10 +9,7 @@ class VideoService {
   final FlutterFFmpeg _flutterFFmpeg = FlutterFFmpeg();
 
   Future<String> generateTTS(String text) async {
-    String timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-    String audioFilePath =
-        join(await FileStorage.getExternalDocumentPath(), '$timestamp.mp3');
-    return await FileStorage.saveTtsAudio(text, audioFilePath);
+    return await FileStorage.saveTtsAudio(text);
   }
 
   Future<String> downloadVideo(String url) async {
@@ -23,9 +20,11 @@ class VideoService {
     return (await FileStorage.downloadAudio(url)).path;
   }
 
-  Future<void> generateVideo(
-      String videoPath, String audioPath, String outputPath) async {
+  Future<void> generateVideo(String videoPath, String audioPath) async {
     try {
+      var outputPath = await FileStorage.getExternalDocumentPath();
+      outputPath = '$outputPath/final_video.mp4';
+
       String command =
           '-i $videoPath -i $audioPath -c:v copy -c:a aac -strict experimental $outputPath';
       int result = await _flutterFFmpeg.execute(command);

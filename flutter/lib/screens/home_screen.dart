@@ -46,9 +46,10 @@ class HomeView extends ConsumerWidget {
             ),
             ElevatedButton(
               onPressed: () async {
+                context.pushNamed('loading');
                 try {
                   await ref.read(videoProvider.notifier).generateVideo();
-                  context.pushNamed('video-preview');
+                  context.pushNamed('preview');
                 } catch (e) {
                   context.pushNamed('failure', extra: e.toString());
                 }

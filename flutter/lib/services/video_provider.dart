@@ -36,16 +36,20 @@ class VideoNotifier extends StateNotifier<VideoRequest> {
 
   Future<void> generateVideo() async {
     try {
-      String videoPath =
-          await _videoService.downloadVideo(state.backgroundVideoUrl);
-      String audioPath = await _videoService.generateTTS(state.text);
+      String videoPath = await downloadVideo();
+      String audioPath = await generateAudio();
 
-      final appDir = await getApplicationDocumentsDirectory();
-      String outputPath = '${appDir.path}/final_video.mp4';
-
-      await _videoService.generateVideo(videoPath, audioPath, outputPath);
+      await _videoService.generateVideo(videoPath, audioPath);
     } catch (e) {
       debugPrint('Error in generating video: $e');
     }
+  }
+
+  Future<String> downloadVideo() async {
+    return await _videoService.downloadVideo(state.backgroundVideoUrl);
+  }
+
+  Future<String> generateAudio() async {
+    return await _videoService.generateTTS(state.text);
   }
 }
