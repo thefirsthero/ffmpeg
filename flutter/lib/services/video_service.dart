@@ -29,7 +29,17 @@ class VideoService {
       if (!await directory.exists()) {
         await directory.create();
       }
-      String outputFilePath = join(outputPath, 'Output', 'final_video.mp4');
+
+      List<FileSystemEntity> existingFiles = directory.listSync();
+      int count =
+          existingFiles.where((file) => file.path.endsWith('.mp4')).length;
+
+      String outputFilePath;
+      if (count == 0) {
+        outputFilePath = join(outputPath, 'Output', 'final_video.mp4');
+      } else {
+        outputFilePath = join(outputPath, 'Output', 'final_video_${count}.mp4');
+      }
 
       String command =
           '-y -i $videoPath -i $audioPath -c:v copy -c:a aac -strict experimental $outputFilePath';
