@@ -12,12 +12,11 @@ void main() async {
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
-  Widget build(context, ref) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final goRouter = ref.watch(routerProvider);
     return ShadApp.router(
-      title: 'FFMPEG',
+      title: 'Shorts Generator',
       debugShowCheckedModeBanner: false,
       routerConfig: goRouter,
       theme: ShadThemeData(

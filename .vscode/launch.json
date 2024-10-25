@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Flutter: Run with Dart Defines",
+        "request": "launch",
+        "type": "dart",
+        "flutterMode": "debug",
+        "program": "flutter/lib/main.dart",
+        "args": [
+          "-d",
+          "RF8N82465GN",
+          "--dart-define-from-file=env.json"
+        ]
+      }
+    ]
+}
+  

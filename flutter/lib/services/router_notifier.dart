@@ -1,35 +1,50 @@
+import 'package:devtodollars/screens/failure_screen.dart';
+import 'package:devtodollars/screens/loading_screen.dart';
+import 'package:devtodollars/screens/video_preview_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:devtodollars/screens/home_screen.dart';
 part 'router_notifier.g.dart';
 
-// This is crucial for making sure that the same navigator is used
-// when rebuilding the GoRouter and not throwing away the whole widget tree.
 final navigatorKey = GlobalKey<NavigatorState>();
-Uri? initUrl = Uri.base; // needed to set intiial url state
+Uri? initUrl = Uri.base;
 
+// services/router_notifier.dart (updated router)
 @riverpod
 GoRouter router(RouterRef ref) {
   return GoRouter(
-    initialLocation: initUrl?.path, // DO NOT REMOVE
     navigatorKey: navigatorKey,
-    observers: [PosthogObserver()],
-    routes: <RouteBase>[
+    initialLocation: '/',
+    routes: [
+      GoRoute(
+        name: 'home',
+        path: '/',
+        builder: (context, state) => const HomeView(),
+      ),
+      GoRoute(
+        name: 'preview',
+        path: '/video-preview',
+        builder: (context, state) => const VideoPreviewView(),
+      ),
       GoRoute(
         name: 'loading',
         path: '/loading',
         builder: (context, state) {
-          return const Center(child: CircularProgressIndicator());
+          final progress = state.extra as double?; // Cast extra as double
+          return LoadingScreen(
+              progress: progress); // Pass progress to LoadingScreen
         },
       ),
       GoRoute(
-        name: 'home',
-        path: '/',
-        builder: (context, state) {
-          return const HomeScreen(title: "FFMPEG");
-        },
+        name: 'failure',
+        path: '/failure',
+        builder: (context, state) => FailureScreen(
+          message: state.extra.toString(),
+          onRetry: () {
+            context.go('/'); // Example retry action
+          },
+        ),
       ),
     ],
   );

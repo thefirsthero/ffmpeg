@@ -1,111 +1,60 @@
-import 'package:devtodollars/components/feedback_dialog.dart';
-import 'package:devtodollars/components/ffmpeg_action_button.dart';
-import 'package:devtodollars/components/file_selector_button.dart';
-import 'package:devtodollars/components/folder_selector_button.dart';
-import 'package:devtodollars/services/ffmpeg_notifier.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../services/video_provider.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key, required this.title});
-
-  final String title;
+class HomeView extends ConsumerWidget {
+  const HomeView({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  @override
-  Widget build(BuildContext context) {
-    final ffmpegState = ref.watch(ffmpegProvider);
-    final ffmpegNotifier = ref.read(ffmpegProvider.notifier);
-
-    void showSuccessDialog() {
-      showDialog(
-        context: context,
-        builder: (context) => FeedbackDialog(
-          title: 'Success',
-          message: 'FFmpeg process completed successfully!',
-          onClose: () => Navigator.of(context).pop(),
-        ),
-      );
-    }
-
-    void showErrorDialog(String errorMessage) {
-      showDialog(
-        context: context,
-        builder: (context) => FeedbackDialog(
-          title: 'Error',
-          message: errorMessage,
-          onClose: () => Navigator.of(context).pop(),
-        ),
-      );
-    }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final videoRequest = ref.watch(videoProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
+      appBar: AppBar(title: const Text('Video Generator')),
       body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Select Input File:', style: TextStyle(fontSize: 16)),
-            FileSelectorButton(
-              buttonText: 'Select File',
-              onFileSelected: (filePath) =>
-                  ffmpegNotifier.setInputFile(filePath),
-            ),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-            Text('Selected File: ${ffmpegState.inputFilePath}'),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-            const Text('Enter FFmpeg Command:', style: TextStyle(fontSize: 16)),
             TextField(
-              decoration:
-                  const InputDecoration(hintText: 'e.g. -c:v copy -c:a copy'),
-              onChanged: (value) => ffmpegNotifier.setCommand(value),
+              decoration: const InputDecoration(labelText: 'Background Video URL'),
+              onChanged: (value) {
+                ref.read(videoProvider.notifier).updateBackgroundVideo(value);
+              },
             ),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-            const Text('Select Output Folder:', style: TextStyle(fontSize: 16)),
-            FolderSelectorButton(
-              buttonText: 'Select Folder',
-              onFolderSelected: (folderPath) =>
-                  ffmpegNotifier.setOutputFolder(folderPath),
+            TextField(
+              decoration: const InputDecoration(labelText: 'Text for TTS'),
+              onChanged: (value) {
+                ref.read(videoProvider.notifier).updateText(value);
+              },
             ),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-            Text('Output Folder: ${ffmpegState.outputFolderPath}'),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-            Center(
-              child: FFmpegActionButton(
-                isRunning: ffmpegState.isRunning,
-                onSuccess: showSuccessDialog,
-                onError: showErrorDialog,
-                startFFmpeg: () => ffmpegNotifier
-                    .startFFmpeg(), // Passing function for starting FFmpeg
-                mounted:
-                    mounted, // Pass the 'mounted' check from the stateful widget
-              ),
+            TextField(
+              decoration: const InputDecoration(labelText: 'Background Audio URL'),
+              onChanged: (value) {
+                ref.read(videoProvider.notifier).updateBackgroundAudio(value);
+              },
             ),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-            if (ffmpegState.outputMessage != null ||
-                ffmpegState.errorMessage != null)
-              Expanded(
-                child: SelectableText(
-                  ffmpegState.errorMessage ?? ffmpegState.outputMessage ?? '',
-                  style: const TextStyle(color: Colors.red),
-                  showCursor: true,
-                  cursorColor: Colors.blue,
-                  contextMenuBuilder: (context, editableTextState) {
-                    return AdaptiveTextSelectionToolbar.editableText(
-                      editableTextState: editableTextState,
-                    );
-                  },
-                ),
-              ),
+            Slider(
+              value: videoRequest.ttsVolumeRatio,
+              min: 0,
+              max: 1,
+              onChanged: videoRequest.backgroundAudioUrl != null
+                  ? (value) {
+                      ref.read(videoProvider.notifier).updateTtsVolumeRatio(value);
+                    }
+                  : null,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await ref.read(videoProvider.notifier).generateVideo();
+                  context.pushNamed('video-preview');
+                } catch (e) {
+                  context.pushNamed('failure', extra: e.toString());
+                }
+              },
+              child: const Text('Generate Video'),
+            ),
           ],
         ),
       ),
